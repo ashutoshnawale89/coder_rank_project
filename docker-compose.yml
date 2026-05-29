@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: coderank-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root@1234}
+      MYSQL_DATABASE: coder_rank
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-root@1234}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./SpringBootBackend
+      dockerfile: Dockerfile
+    container_name: coderank-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8080
+      DB_URL: jdbc:mysql://mysql:3306/coder_rank?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root@1234}
+      JWT_SECRET: ${JWT_SECRET:-Zm9vYmFyYmF6cXV4Y29kZXJhbmtzZWNyZXRrZXlmb3JqdzAxMjM0NTY3ODk=}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      DOCKER_ENABLED: "true"
+      DOCKER_TIMEOUT: 10
+      DOCKER_MEMORY: 256m
+      DOCKER_CPUS: "0.5"
+      DOCKER_PIDS_LIMIT: 64
+      DOCKER_WORKDIR: /tmp/coderank
+      EXECUTOR_CORE: 4
+      EXECUTOR_MAX: 8
+      EXECUTOR_QUEUE: 20
+      RATE_LIMIT_RPM: 10
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@coderank.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change_me_strong}
+    ports:
+      - "8080:8080"
+    # SECURITY WARNING:
+    # Mounting the Docker socket gives the backend root-equivalent access
+    # to the host. Only do this in trusted environments. For production,
+    # prefer a remote Docker-in-Docker service, gVisor/Firecracker isolation,
+    # or a dedicated execution worker behind a queue.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/coderank:/tmp/coderank
+
+volumes:
+  mysql_data:
