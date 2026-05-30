@@ -53,7 +53,7 @@ public class SolutionService {
     public SolutionResponse solve(Long userId, Long questionId, SolutionRequest req) {
         rateLimiter.check(userId);
 
-        Question question = questionRepository.findByIdWithTestCases(questionId)
+        Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
         if (question.getTestCases().isEmpty()) {
             throw new BadRequestException("This question has no test cases yet");

@@ -27,12 +27,12 @@ public class AdminQuestionService {
     private final UserRepository userRepository;
 
     @Transactional
-    public QuestionResponse create(Long adminId, List<QuestionRequest> requestList) {
+    public List<QuestionResponse> create(Long adminId, List<QuestionRequest> requestList) {
+         User admin = userRepository.findById(adminId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Admin user not found"));
+        List<QuestionResponse> responses = new java.util.ArrayList<>();
         for (QuestionRequest req : requestList) {
             validateTestCases(req.getTestCases());
-            User admin = userRepository.findById(adminId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Admin user not found"));
-
             Question question = Question.builder()
                     .title(req.getTitle())
                     .description(req.getDescription())
@@ -42,15 +42,15 @@ public class AdminQuestionService {
 
             List<TestCase> testCases = buildTestCases(question, req.getTestCases());
             question.setTestCases(testCases);
-            return QuestionResponse.forAdmin(questionRepository.save(question));
+            responses.add(QuestionResponse.forAdmin(questionRepository.save(question)));
         }
-        return null;
+        return responses;
     }
 
     @Transactional
     public QuestionResponse update(Long id, QuestionRequest req) {
         validateTestCases(req.getTestCases());
-        Question question = questionRepository.findByIdWithTestCases(id)
+        Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
         question.setTitle(req.getTitle());
@@ -64,7 +64,7 @@ public class AdminQuestionService {
 
     @Transactional(readOnly = true)
     public QuestionResponse get(Long id) {
-        Question q = questionRepository.findByIdWithTestCases(id)
+        Question q = questionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
         return QuestionResponse.forAdmin(q);
     }

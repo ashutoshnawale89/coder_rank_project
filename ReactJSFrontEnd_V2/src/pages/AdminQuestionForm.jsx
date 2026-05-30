@@ -40,8 +40,9 @@ export default function AdminQuestionForm() {
     e.preventDefault();
     setError(''); setSaving(true);
     try {
-      const data = await adminQuestionApi.create(form);
-      navigate(`/questions/${data.id}`);
+      const data = await adminQuestionApi.create([form]);
+      const created = Array.isArray(data) ? data[0] : data;
+      navigate(`/questions/${created.id}`);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {

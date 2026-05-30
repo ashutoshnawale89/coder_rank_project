@@ -24,7 +24,7 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public QuestionResponse get(Long id) {
-        Question q = questionRepository.findByIdWithTestCases(id)
+        Question q = questionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
         return QuestionResponse.forUser(q);
     }

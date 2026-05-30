@@ -74,7 +74,7 @@ public class AdminQuestionController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Caller is not an admin", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
         })
         @PostMapping
-        public ResponseEntity<ApiResponse<QuestionResponse>> create(
+        public ResponseEntity<ApiResponse<List<QuestionResponse>>> create(
                         @AuthenticationPrincipal CustomUserDetails admin,
                         @Valid @RequestBody List<QuestionRequest> request) {
                 return ResponseEntity.ok(ApiResponse.ok("Question created",

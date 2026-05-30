@@ -159,12 +159,17 @@ public class DockerExecutor {
     }
 
     private ExecutionResult execInContainer(String containerName, String runCommand, String stdin) {
-        String wrapped = "timeout " + timeoutSeconds + " " + runCommand;
+        // Use `-s KILL` so the program is SIGKILLed at the limit. SIGTERM (the default) can be
+        // ignored by a JIT-compiled tight loop (e.g. Java while(true){}), which makes `timeout`
+        // itself hang waiting for the process to die — that was the "runs forever" case.
+        // Exit codes after a timeout kill: 124 (GNU coreutils), 137 = 128+SIGKILL,
+        // 143 = 128+SIGTERM (busybox/alpine). All three mean "timed out".
+        String wrapped = "timeout -s KILL " + timeoutSeconds + " " + runCommand;
         List<String> cmd = List.of("docker", "exec", "-i", containerName, "sh", "-c", wrapped);
         ProcessOutcome out = runBlocking(cmd, stdin, timeoutSeconds + 5);
 
         ExecutionStatus status;
-        if (!out.finished || out.exitCode == 124 || out.exitCode == 137) {
+        if (!out.finished || out.exitCode == 124 || out.exitCode == 137 || out.exitCode == 143) {
             return ExecutionResult.builder()
                     .stdout(out.stdout)
                     .stderr(out.stderr.isEmpty()
