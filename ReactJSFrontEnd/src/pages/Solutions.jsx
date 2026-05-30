@@ -36,8 +36,8 @@ export default function Solutions() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Solutions</h1>
-          <p className="page-subtitle">Your past solution attempts and verdicts.</p>
+          <h1>Submissions</h1>
+          <p className="page-subtitle">Your past submission attempts and verdicts.</p>
         </div>
       </div>
 

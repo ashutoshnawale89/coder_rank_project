@@ -23,10 +23,8 @@ export default function Navbar() {
             <>
               <NavLink to="/" end>Dashboard</NavLink>
               <NavLink to="/editor">Editor</NavLink>
-              <NavLink to="/snippets">Snippets</NavLink>
-              <NavLink to="/submissions">Submissions</NavLink>
               <NavLink to="/questions">Questions</NavLink>
-              <NavLink to="/solutions">Solutions</NavLink>
+              <NavLink to="/solutions">Submissions</NavLink>
               <NavLink to="/health">Health</NavLink>
               {isAdmin && <NavLink to="/admin/questions/new">New Question</NavLink>}
             </>

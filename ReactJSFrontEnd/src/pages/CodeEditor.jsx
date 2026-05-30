@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, Save } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { executionApi } from '../api/executionApi';
-import { snippetApi } from '../api/snippetApi';
 import { extractErrorMessage } from '../api/axiosClient';
 import ErrorMessage from '../components/ErrorMessage';
 import OutputPanel from '../components/OutputPanel';
@@ -21,8 +20,6 @@ export default function CodeEditor() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [running, setRunning] = useState(false);
-  const [savedSnippet, setSavedSnippet] = useState(null);
-  const [saving, setSaving] = useState(false);
 
   const handleLanguageChange = (e) => {
     const next = e.target.value;
@@ -40,20 +37,6 @@ export default function CodeEditor() {
       setError(extractErrorMessage(err));
     } finally {
       setRunning(false);
-    }
-  };
-
-  const handleSave = async () => {
-    setSaving(true); setError(''); setSavedSnippet(null);
-    try {
-      const title = prompt('Snippet title?', `Snippet ${new Date().toLocaleString()}`);
-      if (!title) { setSaving(false); return; }
-      const data = await snippetApi.create({ title, language, code });
-      setSavedSnippet(data);
-    } catch (err) {
-      setError(extractErrorMessage(err));
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -76,9 +59,6 @@ export default function CodeEditor() {
               {LANGUAGES.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
             </select>
             <div style={{ flex: 1 }} />
-            <button className="btn btn-ghost" onClick={handleSave} disabled={saving || !code.trim()}>
-              <Save size={16} /> {saving ? 'Saving…' : 'Save as Snippet'}
-            </button>
             <button className="btn btn-primary" onClick={handleRun} disabled={running || !code.trim()}>
               <Play size={16} /> {running ? 'Running…' : 'Run'}
             </button>
@@ -105,13 +85,6 @@ export default function CodeEditor() {
               onChange={(e) => setStdin(e.target.value)}
             />
           </div>
-
-          {savedSnippet && (
-            <div className="card">
-              <h3 style={{ margin: '0 0 8px' }}>Saved snippet</h3>
-              <p className="mono">#{savedSnippet.id} — {savedSnippet.title}</p>
-            </div>
-          )}
 
           <div className="card">
             <h3 style={{ margin: '0 0 8px' }}>Output</h3>

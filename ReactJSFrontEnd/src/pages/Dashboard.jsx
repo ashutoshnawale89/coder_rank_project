@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Code, FileCode, ListChecks, Activity, BookOpen, Trophy, Shield } from 'lucide-react';
+import { Code, Activity, BookOpen, Trophy, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const TILES = [
   { to: '/editor',      title: 'Code Editor',  desc: 'Run Python, Java, or JavaScript in a sandbox.', icon: Code },
-  { to: '/snippets',    title: 'Snippets',     desc: 'Save and manage your code snippets.', icon: FileCode },
-  { to: '/submissions', title: 'Submissions',  desc: 'See every code run you have made.', icon: ListChecks },
   { to: '/questions',   title: 'Questions',    desc: 'Browse questions and submit solutions.', icon: BookOpen },
-  { to: '/solutions',   title: 'Solutions',    desc: 'Your grading attempts and verdicts.', icon: Trophy },
+  { to: '/solutions',   title: 'Submissions',  desc: 'Your grading attempts and verdicts.', icon: Trophy },
   { to: '/health',      title: 'API Status',   desc: 'Check that the backend is reachable.', icon: Activity }
 ];
 
